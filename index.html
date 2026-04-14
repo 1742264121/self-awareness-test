@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全方位自我认知测试</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --primary: #6366F1;
+    --primary-dark: #4F46E5;
+    --secondary: #8B5CF6;
+    --accent: #A78BFA;
+    --bg: #F8FAFC;
+    --bg2: #F1F5F9;
+    --card: #FFFFFF;
+    --text: #1E293B;
+    --text2: #64748B;
+    --border: #E2E8F0;
+    --success: #10B981;
+    --shadow: 0 4px 24px rgba(99,102,241,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== 欢迎页 ===== */
+  #welcome-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    text-align: center;
+  }
+  #welcome-screen h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  #welcome-screen p {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.85);
+    max-width: 600px;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    max-width: 780px;
+    width: 100%;
+    margin: 1.5rem 0 2.5rem;
+  }
+  .module-card {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 16px;
+    padding: 1rem;
+    color: #fff;
+    backdrop-filter: blur(10px);
+  }
+  .module-card .icon { font-size: 2rem; margin-bottom: 0.4rem; }
+  .module-card .name { font-size: 0.9rem; font-weight: 600; }
+  .module-card .count { font-size: 0.75rem; opacity: 0.75; margin-top: 0.2rem; }
+  .btn-start {
+    background: #fff;
+    color: var(--primary-dark);
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.25); }
+  .time-note {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.85rem;
+    margin-top: 1rem;
+  }
+
+  /* ===== 测试主界面 ===== */
+  #quiz-screen {
+    display: none;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  .quiz-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.2rem 2rem;
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(99,102,241,0.3);
+  }
+  .quiz-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+  }
+  .quiz-title { font-size: 1.1rem; font-weight: 700; }
+  .quiz-counter { font-size: 0.9rem; opacity: 0.85; }
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+
+  .quiz-body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* 模块标题 */
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+  }
+  .module-icon { font-size: 2rem; }
+  .module-info h2 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+  .module-info p { font-size: 0.85rem; color: var(--text2); margin-top: 0.2rem; }
+
+  /* 问题卡片 */
+  .question-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+  .q-number {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .q-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  /* 量表选项 */
+  .likert-scale {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text2);
+    padding: 0 0.2rem;
+    margin-bottom: 0.3rem;
+  }
+  .scale-options {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+  }
+  .scale-btn {
+    flex: 1;
+    max-width: 100px;
+    padding: 0.7rem 0.3rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text2);
+    text-align: center;
+  }
+  .scale-btn:hover {
+    border-color: var(--accent);
+    background: #F5F3FF;
+    color: var(--primary);
+    transform: translateY(-1px);
+  }
+  .scale-btn.selected {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  }
+
+  /* 操作按钮 */
+  .quiz-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+  .btn-prev, .btn-next {
+    padding: 0.85rem 2rem;
+    border-radius: 50px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-prev {
+    background: var(--bg2);
+    color: var(--text2);
+    border: 2px solid var(--border);
+  }
+  .btn-prev:hover { background: var(--border); }
+  .btn-next {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    flex: 1;
+    box-shadow: 0 4px 15px rgba(99,102,241,0.35);
+  }
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+  .btn-next:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* 保存提示 */
+  .save-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--success);
+    margin-top: 0.8rem;
+    justify-content: center;
+  }
+
+  /* ===== 结果页 ===== */
+  #result-screen {
+    display: none;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  .result-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #fff;
+  }
+  .result-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .result-header p { opacity: 0.85; font-size: 1rem; }
+  .result-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  .result-chart-wrap {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  .result-chart-wrap h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+  .chart-container { max-width: 500px; margin: 0 auto; }
+
+  .result-modules {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 600px) {
+    .result-modules { grid-template-columns: 1fr; }
+    #welcome-screen h1 { font-size: 1.8rem; }
+    .scale-options { gap: 0.4rem; }
+    .scale-btn { padding: 0.6rem 0.2rem; font-size: 0.78rem; }
+  }
+  .result-module-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .result-module-card .rm-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .rm-icon { font-size: 1.8rem; }
+  .rm-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .rm-score-bar-wrap {
+    background: var(--bg2);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  .rm-score-bar {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transition: width 1s ease;
+  }
+  .rm-score-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text2);
+    margin-bottom: 0.8rem;
+  }
+  .rm-desc { font-size: 0.85rem; color: var(--text); line-height: 1.6; }
+
+  .result-summary {
+    background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid #DDD6FE;
+  }
+  .result-summary h2 { font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 1rem; }
+  .summary-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  .tag {
+    background: var(--primary);
+    color: #fff;
+    border-radius: 20px;
+    padding: 0.3rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .tag.secondary { background: var(--secondary); }
+  .tag.accent { background: #0EA5E9; }
+  .summary-text { font-size: 0.92rem; line-height: 1.8; color: var(--text); }
+
+  .btn-restart {
+    display: inline-block;
+    margin-right: 0.8rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+  }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.4); }
+  .btn-history-result {
+    display: inline-block;
+    background: var(--bg2);
+    color: var(--text);
+    border: 2px solid var(--border);
+    border-radius: 50px;
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-history-result:hover { background: var(--border); transform: translateY(-2px); }
+  .result-btns { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin:0 auto 3rem; }
+
+  /* ===== 历史记录页 ===== */
+  #history-screen {
+    display: none;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  .history-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #fff;
+  }
+  .history-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .history-header p { opacity: 0.85; font-size: 1rem; }
+  .history-body { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .history-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text2);
+  }
+  .history-empty .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .history-empty p { font-size: 1.05rem; line-height: 1.6; }
+  .history-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+  .history-item {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem 1.8rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.25s;
+    border-left: 4px solid transparent;
+  }
+  .history-item:hover {
+    box-shadow: 0 8px 32px rgba(99,102,241,0.18);
+    transform: translateX(4px);
+    border-left-color: var(--primary);
+  }
+  .hi-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+  .hi-title { font-size: 1.08rem; font-weight: 700; color: var(--text); }
+  .hi-date { font-size: 0.82rem; color: var(--text2); }
+  .hi-scores-mini { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .hi-score-chip {
+    background: var(--bg2);
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.72rem;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+  .hi-score-chip strong { color: var(--primary-dark); }
+
+  /* ===== 对比分析页 ===== */
+  #compare-screen {
+    display: none;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  .compare-header {
+    background: linear-gradient(135deg, #06B6D4 0%, #6366F1 50%, #A78BFA 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #fff;
+  }
+  .compare-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .compare-header p { opacity: 0.85; font-size: 1rem; }
+  .compare-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .compare-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+  }
+  .compare-card h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .chart-container-large { max-width: 750px; margin: 0 auto; }
+  .growth-report {
+    background: linear-gradient(135deg, #ECFEFF, #EEF2FF);
+    border-radius: 16px;
+    padding: 1.8rem;
+    border: 1px solid #C7D2FE;
+    line-height: 1.9;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+  .growth-report h3 {
+    font-size: 1.05rem;
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+  }
+  .growth-highlight {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .gh-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.08);
+  }
+  .gh-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+  .gh-label { font-size: 0.78rem; color: var(--text2); margin-bottom: 0.3rem; }
+  .gh-value { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+  .gh-value.up { color: #10B981; }
+  .gh-value.down { color: #EF4444; }
+  .gh-change { font-size: 0.72rem; color: var(--text2); margin-top: 0.2rem; }
+  .dim-compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .dim-compare-item {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 1.3rem;
+    box-shadow: 0 2px 10px rgba(99,102,241,0.07);
+  }
+  .dci-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dci-trend { font-size: 0.75rem; font-weight: 600; }
+  .dci-trend.up { color: #10B981; }
+  .dci-trend.down { color: #EF4444; }
+  .dci-trend.same { color: var(--text2); }
+  .dci-bars { display: flex; align-items: center; gap: 0.6rem; }
+  .dci-bar-wrap { flex: 1; }
+  .dci-bar-bg {
+    background: var(--bg2);
+    border-radius: 8px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .dci-bar-fill-old {
+    height: 100%;
+    border-radius: 8px;
+    background: #94A3B8;
+    position: absolute;
+    top: 0; left: 0;
+    opacity: 0.5;
+  }
+  .dci-bar-fill-new {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    position: relative;
+  }
+  .dci-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text2); margin-top: 0.3rem; }
+
+  /* 返回按钮 */
+  .btn-back {
+    display: inline-block;
+    background: var(--bg2);
+    color: var(--text2);
+    border: 2px solid var(--border);
+    border-radius: 50px;
+    padding: 0.85rem 2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+  }
+  .btn-back:hover { background: var(--border); transform: translateX(-3px); }
+
+  /* 欢迎页历史入口 */
+  .btn-history-entry {
+    display: inline-block;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 50px;
+    padding: 0.8rem 2.2rem;
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-left: 1rem;
+  }
+  .btn-history-entry:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 欢迎页 ===== -->
+<div id="welcome-screen">
+  <h1>🧠 全方位自我认知测试</h1>
+  <p>这套测试基于<strong>大五人格、情绪智力、价值观心理学、依恋理论</strong>等多项权威心理学理论设计，帮助你从七个维度深度了解自己。</p>
+
+  <div class="module-grid">
+    <div class="module-card"><div class="icon">🎭</div><div class="name">人格特质</div><div class="count">25题</div></div>
+    <div class="module-card"><div class="icon">🧩</div><div class="name">认知风格</div><div class="count">20题</div></div>
+    <div class="module-card"><div class="icon">💝</div><div class="name">情绪智力</div><div class="count">20题</div></div>
+    <div class="module-card"><div class="icon">⚖️</div><div class="name">核心价值观</div><div class="count">20题</div></div>
+    <div class="module-card"><div class="icon">🚀</div><div class="name">内在动机</div><div class="count">20题</div></div>
+    <div class="module-card"><div class="icon">🤝</div><div class="name">人际关系</div><div class="count">20题</div></div>
+    <div class="module-card"><div class="icon">🛡️</div><div class="name">压力应对</div><div class="count">20题</div></div>
+  </div>
+
+  <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+    <button class="btn-start" onclick="startQuiz()">开始测试</button>
+    <button class="btn-history-entry" onclick="showHistory()">📊 历史记录与对比分析</button>
+  </div>
+  <p class="time-note">⏱ 预计完成时间 60-75 分钟 · 可随时中断，进度自动保存</p>
+</div>
+
+<!-- ===== 测试主界面 ===== -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <div class="quiz-header-top">
+      <span class="quiz-title" id="current-module-name">模块一：人格特质评估</span>
+      <span class="quiz-counter" id="q-counter">1 / 145</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="module-header" id="module-header">
+      <div class="module-icon" id="module-icon">🎭</div>
+      <div class="module-info">
+        <h2 id="module-title">模块一：人格特质评估</h2>
+        <p id="module-desc">基于大五人格模型（OCEAN），探索你的基本性格倾向</p>
+      </div>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <span class="q-number" id="q-number">第 1 题</span>
+      <p class="q-text" id="q-text"></p>
+      <div class="likert-scale">
+        <div class="scale-labels">
+          <span>非常不同意</span>
+          <span>不同意</span>
+          <span>中立</span>
+          <span>同意</span>
+          <span>非常同意</span>
+        </div>
+        <div class="scale-options" id="scale-options">
+          <button class="scale-btn" onclick="selectAnswer(1)">1</button>
+          <button class="scale-btn" onclick="selectAnswer(2)">2</button>
+          <button class="scale-btn" onclick="selectAnswer(3)">3</button>
+          <button class="scale-btn" onclick="selectAnswer(4)">4</button>
+          <button class="scale-btn" onclick="selectAnswer(5)">5</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-actions">
+      <button class="btn-prev" id="btn-prev" onclick="prevQuestion()">← 上一题</button>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>下一题 →</button>
+    </div>
+    <div class="save-badge">💾 进度已自动保存</div>
+  </div>
+</div>
+
+<!-- ===== 结果页 ===== -->
+<div id="result-screen">
+  <div class="result-header">
+    <h1>🎉 测试完成！</h1>
+    <p>以下是你的全方位自我认知报告</p>
+  </div>
+  <div class="result-body">
+    <div class="result-chart-wrap">
+      <h2>七维度综合雷达图</h2>
+      <div class="chart-container">
+        <canvas id="radarChart"></canvas>
+      </div>
+    </div>
+
+    <div class="result-modules" id="result-modules"></div>
+
+    <div class="result-summary" id="result-summary">
+      <h2>🌟 综合分析</h2>
+      <div class="summary-tags" id="summary-tags"></div>
+      <p class="summary-text" id="summary-text"></p>
+    </div>
+
+    <div class="result-btns">
+      <button class="btn-restart" onclick="restartQuiz()">🔄 重新测试</button>
+      <button class="btn-history-result" onclick="showHistory()">📊 查看历史记录与成长对比</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 历史记录页 ===== -->
+<div id="history-screen">
+  <div class="history-header">
+    <h1>📊 测试历史记录</h1>
+    <p>查看你历次的测试结果，追踪你的成长轨迹</p>
+  </div>
+  <div class="history-body" id="history-body">
+    <!-- 动态填充 -->
+  </div>
+  <div style="text-align:center;padding-bottom:3rem;">
+    <button class="btn-back" onclick="goHome()">← 返回首页</button>
+  </div>
+</div>
+
+<!-- ===== 对比分析页 ===== -->
+<div id="compare-screen">
+  <div class="compare-header">
+    <h1>📈 成长对比分析</h1>
+    <p id="compare-subtitle">多维度成长轨迹可视化</p>
+  </div>
+  <div class="compare-body" id="compare-body">
+    <!-- 动态填充 -->
+  </div>
+  <div style="text-align:center;padding-bottom:3rem;">
+    <button class="btn-back" onclick="showHistory()">← 返回历史记录</button>
+  </div>
+</div>
+
+<script>
+// ===================================================
+// 题目数据库
+// ===================================================
+const QUESTIONS = [
+  // ---- 模块一：人格特质（大五人格 OCEAN）25题 ----
+  // 开放性(O) 5题
+  {m:0, dim:'O', r:false, text:'我喜欢尝试新事物和新体验，即使它们与我的习惯不同。'},
+  {m:0, dim:'O', r:false, text:'我对艺术、音乐或文学有深厚的兴趣和欣赏能力。'},
+  {m:0, dim:'O', r:true,  text:'我更喜欢做熟悉的事情，而不是尝试陌生的活动。'},
+  {m:0, dim:'O', r:false, text:'我有丰富的想象力，经常会天马行空地思考。'},
+  {m:0, dim:'O', r:false, text:'遇到抽象的思想或概念时，我感到非常着迷。'},
+  // 尽责性(C) 5题
+  {m:0, dim:'C', r:false, text:'我做事有计划，会提前安排好时间和任务。'},
+  {m:0, dim:'C', r:false, text:'我能坚持完成一项工作，即使遇到困难也不轻易放弃。'},
+  {m:0, dim:'C', r:true,  text:'我经常把事情拖到最后一刻才去做。'},
+  {m:0, dim:'C', r:false, text:'我注重细节，不喜欢粗心大意地完成任务。'},
+  {m:0, dim:'C', r:true,  text:'我的生活和工作空间通常是凌乱的。'},
+  // 外向性(E) 5题
+  {m:0, dim:'E', r:false, text:'我在社交场合中感到精力充沛，享受与人交流。'},
+  {m:0, dim:'E', r:true,  text:'与人交谈一段时间后，我需要独处来恢复精力。'},
+  {m:0, dim:'E', r:false, text:'我喜欢成为众人关注的焦点。'},
+  {m:0, dim:'E', r:false, text:'我很容易结识新朋友，与陌生人交谈不让我感到困难。'},
+  {m:0, dim:'E', r:true,  text:'我更喜欢安静地独处，而不是参加热闹的聚会。'},
+  // 宜人性(A) 5题
+  {m:0, dim:'A', r:false, text:'我总是尽力帮助他人，即使这对我来说有些不便。'},
+  {m:0, dim:'A', r:false, text:'我相信大多数人都有善良的本性。'},
+  {m:0, dim:'A', r:true,  text:'当我认为自己是对的时候，我很难妥协或退让。'},
+  {m:0, dim:'A', r:false, text:'我容易感受到他人的情绪，并对他人的困境产生同情。'},
+  {m:0, dim:'A', r:false, text:'我在冲突中倾向于寻求和解，而不是坚持对抗。'},
+  // 神经质(N) 5题 - 反向计入情绪稳定性
+  {m:0, dim:'N', r:false, text:'我经常感到焦虑、担心或紧张。'},
+  {m:0, dim:'N', r:false, text:'我的情绪容易受到外部事件的影响而波动。'},
+  {m:0, dim:'N', r:true,  text:'我在压力下能保持冷静，不容易产生负面情绪。'},
+  {m:0, dim:'N', r:false, text:'我有时会无缘无故地感到悲伤或沮丧。'},
+  {m:0, dim:'N', r:false, text:'我对批评或负面反馈非常敏感，容易受到影响。'},
+
+  // ---- 模块二：认知与决策风格 20题 ----
+  {m:1, dim:'INT', r:false, text:'在做决定时，我更依赖数据和逻辑分析，而非直觉感受。'},
+  {m:1, dim:'INT', r:true,  text:'我经常凭"第一感觉"做决定，事后证明往往是对的。'},
+  {m:1, dim:'SYS', r:false, text:'我喜欢将问题分解成小部分，系统地逐一解决。'},
+  {m:1, dim:'SYS', r:false, text:'我在做任何事情前都喜欢先制定详细的计划。'},
+  {m:1, dim:'RISK', r:false, text:'我愿意接受较高的风险，以换取更大的潜在收益。'},
+  {m:1, dim:'RISK', r:true,  text:'我更倾向于选择稳定可预期的结果，而非赌博式的高回报。'},
+  {m:1, dim:'DET', r:false, text:'我会从多个角度反复思考一个问题，直到找到最佳方案。'},
+  {m:1, dim:'DET', r:true,  text:'我倾向于快速做出决定，避免过度思考。'},
+  {m:1, dim:'ABS', r:false, text:'我享受思考抽象的理论问题，即使它们没有实际用途。'},
+  {m:1, dim:'ABS', r:true,  text:'我更关注实际可操作的问题，而非纯粹的理论探讨。'},
+  {m:1, dim:'INT', r:false, text:'我在学习新知识时，更喜欢理解底层原理而不是死记规则。'},
+  {m:1, dim:'SYS', r:false, text:'我习惯用清单或结构化方式整理我的思路和任务。'},
+  {m:1, dim:'RISK', r:false, text:'面对不确定性，我更容易感到兴奋而非焦虑。'},
+  {m:1, dim:'DET', r:false, text:'我在做重要决定前，会广泛收集信息并权衡各种可能性。'},
+  {m:1, dim:'ABS', r:false, text:'我对"为什么"比"怎么做"更感兴趣。'},
+  {m:1, dim:'INT', r:false, text:'我能快速发现事物之间的规律和联系。'},
+  {m:1, dim:'SYS', r:true,  text:'我的思维方式比较跳跃，经常同时处理多个不相关的想法。'},
+  {m:1, dim:'RISK', r:true,  text:'我宁愿放弃一个机会，也不愿意承担事情失败的风险。'},
+  {m:1, dim:'DET', r:false, text:'我会为了找到完美答案而花大量时间研究一个问题。'},
+  {m:1, dim:'ABS', r:false, text:'思考人生意义、宇宙起源等宏大问题让我感到有趣而非无聊。'},
+
+  // ---- 模块三：情绪智力 20题 ----
+  {m:2, dim:'EA', r:false, text:'我能很快察觉到自己的情绪变化，并知道原因。'},
+  {m:2, dim:'EA', r:false, text:'我能准确区分自己的各种情绪，如失望、悲伤、沮丧的不同。'},
+  {m:2, dim:'EX', r:false, text:'我能自然地将自己的感受表达出来，不会刻意压抑。'},
+  {m:2, dim:'EX', r:true,  text:'我发现很难向别人解释我的感受，即使我自己清楚。'},
+  {m:2, dim:'ER', r:false, text:'当我感到愤怒时，我能在表达前让自己冷静下来。'},
+  {m:2, dim:'ER', r:true,  text:'负面情绪一旦产生，我很难在短时间内让自己从中走出来。'},
+  {m:2, dim:'EMP', r:false, text:'和朋友交谈时，我能感受到他们话语背后的情绪。'},
+  {m:2, dim:'EMP', r:false, text:'当身边的人不开心时，我能直觉地感知到，即使他们没有说出来。'},
+  {m:2, dim:'EU', r:false, text:'我能利用积极的情绪状态来提升工作效率和创造力。'},
+  {m:2, dim:'EU', r:false, text:'我了解自己在什么情绪状态下最适合做哪类任务。'},
+  {m:2, dim:'EA', r:true,  text:'我的情绪经常来去不明，自己也不清楚是什么触发了它们。'},
+  {m:2, dim:'EX', r:false, text:'我能以不伤害他人的方式表达自己的不满或愤怒。'},
+  {m:2, dim:'ER', r:false, text:'面对失败和挫折，我能相对迅速地调整好心态继续前进。'},
+  {m:2, dim:'EMP', r:false, text:'我会根据对方的情绪状态来调整我说话的方式和内容。'},
+  {m:2, dim:'EU', r:false, text:'我能主动创造让自己进入好状态的条件（如音乐、环境等）。'},
+  {m:2, dim:'EA', r:false, text:'我清楚哪些人或情境容易触发我的特定情绪反应。'},
+  {m:2, dim:'EMP', r:true,  text:'我有时候很难理解为什么别人会对某件事有那么强烈的情绪反应。'},
+  {m:2, dim:'ER', r:false, text:'当压力很大时，我有有效的方式让自己冷静下来。'},
+  {m:2, dim:'EX', r:false, text:'我能在合适的场合表达脆弱，而不会感到羞耻。'},
+  {m:2, dim:'EU', r:false, text:'我能把对某件事的热情和投入感延续到其他相关任务中。'},
+
+  // ---- 模块四：核心价值观 20题 ----
+  {m:3, dim:'ACH', r:false, text:'实现个人目标和成就对我来说非常重要，我愿意为此努力付出。'},
+  {m:3, dim:'REL', r:false, text:'亲密的人际关系和情感联结对我来说比职业成就更重要。'},
+  {m:3, dim:'IND', r:false, text:'能够按照自己的方式生活，不受他人约束，对我极为重要。'},
+  {m:3, dim:'SEC', r:false, text:'我非常重视生活的稳定性和安全感，不喜欢太多不确定性。'},
+  {m:3, dim:'GRW', r:false, text:'持续学习和自我成长是我生活中最重要的追求之一。'},
+  {m:3, dim:'HED', r:false, text:'享受生活、寻求乐趣是我重要的生活目标。'},
+  {m:3, dim:'ALT', r:false, text:'帮助他人、对社会做出贡献是驱动我的重要动力。'},
+  {m:3, dim:'PWR', r:false, text:'拥有影响力和权力，能够改变事情的方向，对我有很大吸引力。'},
+  {m:3, dim:'ACH', r:false, text:'我在意自己的社会地位和他人对我成就的认可。'},
+  {m:3, dim:'REL', r:false, text:'我宁愿放弃一个好的工作机会，也不愿意因此损害重要的人际关系。'},
+  {m:3, dim:'IND', r:true,  text:'为了维持与他人的和谐关系，我愿意妥协自己的部分想法和需求。'},
+  {m:3, dim:'SEC', r:true,  text:'我对未知和不确定的未来感到兴奋，而非担忧。'},
+  {m:3, dim:'GRW', r:false, text:'我会主动走出舒适区，即使这意味着面对失败的风险。'},
+  {m:3, dim:'HED', r:true,  text:'我更倾向于为未来延迟当下的享乐，而非活在当下。'},
+  {m:3, dim:'ALT', r:false, text:'看到社会不公正的现象，我会有强烈的冲动想要去改变它。'},
+  {m:3, dim:'PWR', r:false, text:'我希望在我所在的领域成为有话语权的人。'},
+  {m:3, dim:'ACH', r:true,  text:'过程比结果更重要——享受做事的过程对我来说胜过最终的成就。'},
+  {m:3, dim:'GRW', r:false, text:'被人称赞"有潜力"对我的吸引力远大于被称赞"稳定可靠"。'},
+  {m:3, dim:'ALT', r:false, text:'即使没有任何回报，我也愿意花时间帮助有需要的陌生人。'},
+  {m:3, dim:'REL', r:false, text:'我更重视深度、真诚的友谊，而非广泛的社交关系网络。'},
+
+  // ---- 模块五：内在动机与需求 20题 ----
+  {m:4, dim:'AUTO', r:false, text:'我做事情主要是因为我真正想做，而不是因为别人要求我做。'},
+  {m:4, dim:'AUTO', r:true,  text:'如果没有外部的奖励或认可，我很难长期坚持做一件事。'},
+  {m:4, dim:'COMP', r:false, text:'我喜欢挑战自己的能力极限，完成困难的任务让我感到满足。'},
+  {m:4, dim:'COMP', r:false, text:'我对自己设定的标准很高，不满足于"够好"的结果。'},
+  {m:4, dim:'BEL', r:false, text:'有归属感——感受到被某个群体接纳——对我非常重要。'},
+  {m:4, dim:'BEL', r:true,  text:'我不需要太多社交联结，能独立完成任务对我来说就足够了。'},
+  {m:4, dim:'INT', r:false, text:'我做一件事时，享受过程本身的乐趣往往比完成结果更重要。'},
+  {m:4, dim:'INT', r:true,  text:'我更在意外部的评价和反馈，而不是自己内心的感受。'},
+  {m:4, dim:'AUTO', r:false, text:'我选择目标和方向时，很少受他人期待的影响。'},
+  {m:4, dim:'COMP', r:false, text:'当我掌握了一个新技能时，我会感到强烈的自我成就感。'},
+  {m:4, dim:'BEL', r:false, text:'我希望被身边的人真正理解和珍视，这对我有很深的意义。'},
+  {m:4, dim:'INT', r:false, text:'我从事某项活动，即使没有任何奖励，也能持续保持热情。'},
+  {m:4, dim:'AUTO', r:true,  text:'我倾向于遵循社会规范和他人期望来指导我的行为选择。'},
+  {m:4, dim:'COMP', r:false, text:'遇到复杂的问题时，我感到跃跃欲试，而不是想要逃避。'},
+  {m:4, dim:'BEL', r:false, text:'在团队中有共同目标和情感联结，比单独高效工作更让我有动力。'},
+  {m:4, dim:'INT', r:false, text:'我的长期项目主要由内在热情驱动，而非外在奖励。'},
+  {m:4, dim:'AUTO', r:false, text:'我在生活中很少按照别人"应该这样"的建议来做决定。'},
+  {m:4, dim:'COMP', r:true,  text:'我比较容易满足，不会因为没达到最高标准而感到困扰。'},
+  {m:4, dim:'BEL', r:false, text:'孤独对我来说比被误解更难以承受。'},
+  {m:4, dim:'INT', r:false, text:'找到生活的意义感对我来说比获得物质回报更重要。'},
+
+  // ---- 模块六：人际关系模式 20题 ----
+  {m:5, dim:'ATT', r:false, text:'在亲密关系中，我容易担心对方是否真正关心我。'},
+  {m:5, dim:'ATT', r:false, text:'我能比较容易地建立和维持深厚的人际关系。'},
+  {m:5, dim:'BND', r:false, text:'我能清晰地表达自己的边界，并且能舒适地拒绝他人的请求。'},
+  {m:5, dim:'BND', r:true,  text:'即使别人的请求让我很为难，我也很难开口拒绝。'},
+  {m:5, dim:'CON', r:false, text:'在冲突中，我能平静地表达自己的观点，而不是情绪化地争吵。'},
+  {m:5, dim:'CON', r:true,  text:'面对冲突时，我通常选择沉默或回避，而不是直接面对。'},
+  {m:5, dim:'TRU', r:false, text:'我通常信任他人，除非有充分的理由让我怀疑他们。'},
+  {m:5, dim:'TRU', r:true,  text:'我需要很长时间才能真正信任一个人，倾向于保持一定的警惕。'},
+  {m:5, dim:'ATT', r:true,  text:'在感情中，我有时会感到被"困住"，需要个人空间和独立。'},
+  {m:5, dim:'BND', r:false, text:'我清楚自己在关系中需要什么，并能向对方表达这些需求。'},
+  {m:5, dim:'CON', r:false, text:'我把冲突视为关系深化的机会，而不是需要避免的威胁。'},
+  {m:5, dim:'TRU', r:false, text:'我相信大多数人在关系中都是真诚的，不带太多算计。'},
+  {m:5, dim:'ATT', r:false, text:'当重要的人不回应我时，我容易感到不安或开始过度解读。'},
+  {m:5, dim:'BND', r:true,  text:'我容易过度承担别人的问题，有时把别人的责任变成自己的负担。'},
+  {m:5, dim:'CON', r:false, text:'在争论中，我能理解对方的立场，即使我不同意他们的观点。'},
+  {m:5, dim:'TRU', r:false, text:'我愿意在关系中展示自己脆弱的一面。'},
+  {m:5, dim:'ATT', r:false, text:'在重要关系中，我很少担心被抛弃或被拒绝。'},
+  {m:5, dim:'BND', r:false, text:'我能区分哪些是我的责任，哪些是别人的责任。'},
+  {m:5, dim:'CON', r:false, text:'在表达不满时，我会选择恰当的时机和方式，而不是随时爆发。'},
+  {m:5, dim:'TRU', r:false, text:'我在关系中更愿意先付出，而不是等对方先表现诚意。'},
+
+  // ---- 模块七：压力与应对机制 20题 ----
+  {m:6, dim:'SEN', r:false, text:'我对压力的感知比较敏感，即使是小事也可能让我感到有压力。'},
+  {m:6, dim:'SEN', r:true,  text:'大多数情况下，我能保持镇定，不容易被压力情况所干扰。'},
+  {m:6, dim:'COP', r:false, text:'面对困境，我倾向于主动采取行动来解决问题，而不是被动等待。'},
+  {m:6, dim:'COP', r:true,  text:'当遇到困难时，我更倾向于暂时逃避，等情绪稳定后再面对。'},
+  {m:6, dim:'RES', r:false, text:'经历挫折后，我能在较短时间内恢复状态，重新振作起来。'},
+  {m:6, dim:'RES', r:true,  text:'一次失败的经历可能让我在很长一段时间内都提不起劲来。'},
+  {m:6, dim:'SUP', r:false, text:'在压力大时，我会主动向朋友或家人寻求支持和帮助。'},
+  {m:6, dim:'SUP', r:true,  text:'遇到困难时，我倾向于独自承担，不愿意麻烦别人。'},
+  {m:6, dim:'SEN', r:false, text:'工作量大或者截止日期临近时，我的焦虑水平会明显上升。'},
+  {m:6, dim:'COP', r:false, text:'我有稳定有效的减压方式（如运动、冥想、创作等）。'},
+  {m:6, dim:'RES', r:false, text:'我能从逆境或困难经历中学到东西，并因此变得更坚强。'},
+  {m:6, dim:'SUP', r:false, text:'我有可以在困难时刻倾诉的人，这让我感到有所依托。'},
+  {m:6, dim:'SEN', r:true,  text:'我很少会对日常压力事件产生强烈的生理或情绪反应。'},
+  {m:6, dim:'COP', r:false, text:'我善于把大问题拆分成小步骤，让应对过程更可操作。'},
+  {m:6, dim:'RES', r:false, text:'即使情况很糟糕，我仍然能找到积极的一面或可能的机会。'},
+  {m:6, dim:'SUP', r:false, text:'我知道什么时候需要专业帮助，并愿意去寻求。'},
+  {m:6, dim:'SEN', r:false, text:'关于未来的不确定性会给我带来持续的焦虑感。'},
+  {m:6, dim:'COP', r:true,  text:'在压力下，我容易用不健康的方式应对（如暴饮暴食、过度消费等）。'},
+  {m:6, dim:'RES', r:false, text:'我相信自己能够应对生活中的各种困难和挑战。'},
+  {m:6, dim:'SUP', r:false, text:'与他人分享我的压力和困境本身就能让我感到轻松一些。'},
+];
+
+// 模块信息
+const MODULES = [
+  {name:'模块一：人格特质评估', icon:'🎭', desc:'基于大五人格模型（OCEAN），探索你的基本性格倾向'},
+  {name:'模块二：认知与决策风格', icon:'🧩', desc:'了解你的思维方式、决策偏好和信息处理模式'},
+  {name:'模块三：情绪智力测评', icon:'💝', desc:'评估你的情绪感知、表达、调节和利用能力'},
+  {name:'模块四：核心价值观探索', icon:'⚖️', desc:'探索你内心深处真正重视和追求的东西'},
+  {name:'模块五：内在动机与需求', icon:'🚀', desc:'理解驱动你行动的内在力量和心理需求'},
+  {name:'模块六：人际关系模式', icon:'🤝', desc:'洞察你在人际互动中的模式、依恋风格和边界感'},
+  {name:'模块七：压力与应对机制', icon:'🛡️', desc:'了解你对压力的感知方式和应对资源'},
+];
+
+// 各模块子维度名称
+const DIM_NAMES = {
+  // 模块一
+  'O':'开放性', 'C':'尽责性', 'E':'外向性', 'A':'宜人性', 'N':'情绪稳定性',
+  // 模块二
+  'INT':'分析思维', 'SYS':'系统思维', 'RISK':'风险偏好', 'DET':'深度思考', 'ABS':'抽象思维',
+  // 模块三
+  'EA':'情绪觉察', 'EX':'情绪表达', 'ER':'情绪调节', 'EMP':'共情能力', 'EU':'情绪运用',
+  // 模块四
+  'ACH':'成就导向', 'REL':'关系导向', 'IND':'独立自主', 'SEC':'安全稳定', 'GRW':'成长探索', 'HED':'享乐主义', 'ALT':'利他精神', 'PWR':'权力影响',
+  // 模块五
+  'AUTO':'自主动机', 'COMP':'胜任需求', 'BEL':'归属需求',
+  // 模块六
+  'ATT':'依恋安全', 'BND':'边界清晰', 'CON':'冲突应对', 'TRU':'信任水平',
+  // 模块七
+  'SEN':'压力敏感', 'COP':'主动应对', 'RES':'心理弹性', 'SUP':'社会支持',
+};
+
+// ===================================================
+// 状态管理
+// ===================================================
+let currentQ = 0;
+let answers = {};
+
+function loadProgress() {
+  const saved = localStorage.getItem('self_quiz_answers');
+  if (saved) {
+    try { answers = JSON.parse(saved); } catch(e) {}
+  }
+  const savedQ = localStorage.getItem('self_quiz_current');
+  if (savedQ !== null) currentQ = parseInt(savedQ);
+}
+
+function saveProgress() {
+  localStorage.setItem('self_quiz_answers', JSON.stringify(answers));
+  localStorage.setItem('self_quiz_current', currentQ);
+}
+
+// ===================================================
+// 界面逻辑
+// ===================================================
+function startQuiz() {
+  loadProgress();
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const mod = MODULES[q.m];
+  const total = QUESTIONS.length;
+
+  // 更新进度
+  document.getElementById('q-counter').textContent = `${currentQ+1} / ${total}`;
+  document.getElementById('progress-fill').style.width = `${((currentQ+1)/total)*100}%`;
+
+  // 模块信息
+  document.getElementById('current-module-name').textContent = mod.name;
+  document.getElementById('module-icon').textContent = mod.icon;
+  document.getElementById('module-title').textContent = mod.name;
+  document.getElementById('module-desc').textContent = mod.desc;
+
+  // 问题
+  document.getElementById('q-number').textContent = `第 ${currentQ+1} 题`;
+  document.getElementById('q-text').textContent = q.text;
+
+  // 选项
+  const btns = document.querySelectorAll('.scale-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.remove('selected');
+    if (answers[currentQ] === i+1) btn.classList.add('selected');
+  });
+
+  // 按钮状态
+  document.getElementById('btn-prev').style.display = currentQ === 0 ? 'none' : 'block';
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.disabled = answers[currentQ] === undefined;
+
+  if (currentQ === total - 1) {
+    nextBtn.textContent = '提交并查看结果 🎉';
+  } else {
+    nextBtn.textContent = '下一题 →';
+  }
+}
+
+function selectAnswer(val) {
+  answers[currentQ] = val;
+  saveProgress();
+
+  const btns = document.querySelectorAll('.scale-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.toggle('selected', i+1 === val);
+  });
+
+  document.getElementById('btn-next').disabled = false;
+
+  // 500ms 后自动下一题（非最后一题）
+  if (currentQ < QUESTIONS.length - 1) {
+    setTimeout(() => nextQuestion(), 500);
+  }
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === undefined) return;
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    saveProgress();
+    renderQuestion();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    saveProgress();
+    renderQuestion();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+}
+
+// ===================================================
+// 计分与结果
+// ===================================================
+function calcScores() {
+  // 按模块计算总分（归一化到0-100）
+  const moduleScores = [0,0,0,0,0,0,0];
+  const moduleCounts = [0,0,0,0,0,0,0];
+
+  QUESTIONS.forEach((q, i) => {
+    if (answers[i] === undefined) return;
+    let val = answers[i];
+    if (q.r) val = 6 - val; // 反向题
+    moduleScores[q.m] += val;
+    moduleCounts[q.m]++;
+  });
+
+  return moduleScores.map((s, i) => {
+    if (moduleCounts[i] === 0) return 50;
+    // max per question = 5, normalize to 0-100
+    return Math.round((s / (moduleCounts[i] * 5)) * 100);
+  });
+}
+
+function getModuleDesc(idx, score) {
+  const descs = [
+    [ // 模块一：人格特质
+      score >= 75 ? '你在大五人格上整体偏向**开放、尽责、外向**的特质，具有较强的社交能力和创造力，同时情绪较为稳定。' :
+      score >= 50 ? '你的人格特质呈现出均衡的状态，在不同维度上各有侧重，兼具内外向特质和一定的情绪弹性。' :
+      '你的人格特质中神经质倾向较明显，可能更偏内向和谨慎，情绪较为敏感，但这也意味着更深的感受力和细腻度。'
+    ],
+    [ // 模块二：认知风格
+      score >= 75 ? '你是典型的分析型思考者，擅长系统思维和深度思考，在复杂问题面前表现出色。' :
+      score >= 50 ? '你的认知风格兼具分析与直觉，能灵活在两种模式间切换，适应不同类型的挑战。' :
+      '你更依赖直觉和快速判断，擅长在信息不完全时做决策，直觉往往是你的重要资产。'
+    ],
+    [ // 模块三：情绪智力
+      score >= 75 ? '你的情绪智力较高，能精准觉察和管理自己的情绪，并对他人的情绪有较强的共情能力。' :
+      score >= 50 ? '你具备中等水平的情绪智力，有一定的情绪觉察能力，在情绪调节和共情上还有提升空间。' :
+      '情绪智力是你值得投入精力提升的领域，增强情绪觉察和调节能力会显著改善你的人际关系和幸福感。'
+    ],
+    [ // 模块四：价值观
+      score >= 75 ? '你有清晰且强烈的个人价值观，知道自己真正在乎什么，这是你做决策的重要罗盘。' :
+      score >= 50 ? '你的价值观处于探索和形成阶段，正在逐渐明确什么对你真正重要。' :
+      '你的价值观可能正在经历转变或尚未完全清晰，这是自我探索中最有价值的时期之一。'
+    ],
+    [ // 模块五：内在动机
+      score >= 75 ? '你由强烈的内在动机驱动，做事主要出于真正的热情和自主意愿，这让你有持续的内生动力。' :
+      score >= 50 ? '你的动机来源兼有内外之分，适当的外部激励对你也有效，但内在兴趣依然是主要驱动力。' :
+      '你更依赖外部动机（奖励、认可等），建议逐步培养对事物本身的兴趣，以形成更稳定的内在驱动力。'
+    ],
+    [ // 模块六：人际关系
+      score >= 75 ? '你在人际关系中表现出较高的安全感和健康的边界意识，能有效处理冲突，信任他人。' :
+      score >= 50 ? '你的人际模式总体健康，但在某些情境（如亲密关系或冲突处理）中可能仍有需要成长的空间。' :
+      '你在人际关系中可能存在一定的焦虑或回避倾向，理解和改善依恋模式将对你的关系质量产生深远影响。'
+    ],
+    [ // 模块七：压力应对
+      score >= 75 ? '你具备较强的压力应对能力，有有效的策略和充足的内外部资源来应对人生中的各种挑战。' :
+      score >= 50 ? '你的压力应对能力处于中等水平，有一定的应对策略，但在高压时期可能需要更多支持。' :
+      '压力管理是你需要重点关注的领域，建立更多的应对资源（包括自我调节技能和社会支持）将对你大有裨益。'
+    ],
+  ];
+  return descs[idx][0];
+}
+
+function generateSummaryTags(scores) {
+  const tags = [];
+  const labels = ['人格特质','认知风格','情绪智力','价值观','内在动机','人际关系','压力应对'];
+  const max = Math.max(...scores);
+  const min = Math.min(...scores);
+
+  scores.forEach((s, i) => {
+    if (s === max) tags.push({text: `✨ ${labels[i]}突出`, cls: ''});
+  });
+
+  if (scores[0] >= 70) tags.push({text: '外向开放', cls: 'secondary'});
+  else if (scores[0] < 45) tags.push({text: '内敛深思', cls: 'secondary'});
+
+  if (scores[2] >= 70) tags.push({text: '高情商', cls: 'accent'});
+  if (scores[4] >= 70) tags.push({text: '内驱力强', cls: ''});
+  if (scores[5] >= 70) tags.push({text: '关系健康', cls: 'secondary'});
+  if (scores[6] >= 70) tags.push({text: '抗压力强', cls: 'accent'});
+
+  return tags;
+}
+
+function generateSummaryText(scores) {
+  const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+  const max = Math.max(...scores);
+  const maxIdx = scores.indexOf(max);
+  const min = Math.min(...scores);
+  const minIdx = scores.indexOf(min);
+  const labels = ['人格特质','认知风格','情绪智力','核心价值观','内在动机','人际关系','压力应对'];
+
+  let text = `你的综合得分为 ${Math.round(avg)} 分（满分100分），`;
+  text += `整体表现${avg >= 70 ? '优秀' : avg >= 55 ? '良好' : '有较大提升空间'}。`;
+  text += `\n\n你最突出的维度是「${labels[maxIdx]}」（${max}分），这是你的核心优势所在，建议继续发挥并在相关领域寻找更多机会。`;
+  text += `\n\n相对而言，「${labels[minIdx]}」（${min}分）是你目前最值得关注和投入精力的成长领域。这并不意味着弱点，而是潜力所在。`;
+
+  if (scores[4] >= 65 && scores[2] >= 65) {
+    text += '\n\n你同时具备较强的内在动机和情绪智力，这是一个非常有力的组合——你不仅知道自己想要什么，还能有效管理情绪和人际关系来实现目标。';
+  }
+
+  text += '\n\n建议：以结果为镜，而非判断。这份报告是一个了解自己的起点，而非终点。随着时间推移，你可以定期重测，观察自己的成长轨迹。';
+
+  return text;
+}
+
+function showResults() {
+  const scores = calcScores();
+
+  // 保存到历史记录
+  saveToHistory(scores);
+
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+
+  // 绘制雷达图
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['人格特质', '认知风格', '情绪智力', '核心价值观', '内在动机', '人际关系', '压力应对'],
+      datasets: [{
+        label: '你的得分',
+        data: scores,
+        backgroundColor: 'rgba(99,102,241,0.2)',
+        borderColor: '#6366F1',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#6366F1',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { stepSize: 25, font: {size: 11} },
+          grid: { color: '#E2E8F0' },
+          angleLines: { color: '#E2E8F0' },
+          pointLabels: { font: {size: 12, weight: 'bold'}, color: '#334155' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  // 模块得分卡片
+  const container = document.getElementById('result-modules');
+  container.innerHTML = '';
+  MODULES.forEach((mod, i) => {
+    const card = document.createElement('div');
+    card.className = 'result-module-card';
+    card.innerHTML = `
+      <div class="rm-header">
+        <span class="rm-icon">${mod.icon}</span>
+        <span class="rm-title">${mod.name}</span>
+      </div>
+      <div class="rm-score-bar-wrap">
+        <div class="rm-score-bar" style="width:0%" id="bar-${i}"></div>
+      </div>
+      <div class="rm-score-text"><span>${scores[i]}分</span><span>满分100</span></div>
+      <p class="rm-desc">${getModuleDesc(i, scores[i])}</p>
+    `;
+    container.appendChild(card);
+    setTimeout(() => {
+      document.getElementById(`bar-${i}`).style.width = `${scores[i]}%`;
+    }, 200 + i * 100);
+  });
+
+  // 综合分析
+  const tags = generateSummaryTags(scores);
+  document.getElementById('summary-tags').innerHTML = tags.map(t =>
+    `<span class="tag ${t.cls}">${t.text}</span>`
+  ).join('');
+  document.getElementById('summary-text').textContent = generateSummaryText(scores);
+}
+
+function restartQuiz() {
+  if (confirm('确定要重新开始测试吗？之前的答案将被清除，新结果会自动保存为一条新的历史记录。')) {
+    localStorage.removeItem('self_quiz_answers');
+    localStorage.removeItem('self_quiz_current');
+    answers = {};
+    currentQ = 0;
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'flex';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+}
+
+// ===================================================
+// 历史记录管理
+// ===================================================
+const HISTORY_KEY = 'self_quiz_history';
+
+function getHistory() {
+  try {
+    const data = localStorage.getItem(HISTORY_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch(e) { return []; }
+}
+
+function saveToHistory(scores) {
+  const history = getHistory();
+  const record = {
+    id: Date.now(),
+    date: new Date().toLocaleString('zh-CN'),
+    timestamp: Date.now(),
+    scores: scores,
+    avgScore: Math.round(scores.reduce((a,b)=>a+b,0)/scores.length),
+    tags: generateSummaryTags(scores).map(t=>t.text)
+  };
+  history.push(record);
+  // 最多保存20条
+  if (history.length > 20) history.shift();
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+function deleteHistoryRecord(id) {
+  if (!confirm('确定要删除这条测试记录吗？')) return;
+  let history = getHistory();
+  history = history.filter(r => r.id !== id);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  showHistory(); // 刷新列表
+}
+
+// ===================================================
+// 页面导航
+// ===================================================
+function goHome() {
+  hideAllScreens();
+  document.getElementById('welcome-screen').style.display = 'flex';
+  updateStartButton();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showHistory() {
+  hideAllScreens();
+  document.getElementById('history-screen').style.display = 'block';
+  renderHistoryList();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function hideAllScreens() {
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('history-screen').style.display = 'none';
+  document.getElementById('compare-screen').style.display = 'none';
+}
+
+// ===================================================
+// 渲染历史记录列表
+// ===================================================
+const DIM_LABELS = ['人格特质','认知风格','情绪智力','核心价值观','内在动机','人际关系','压力应对'];
+
+function renderHistoryList() {
+  const body = document.getElementById('history-body');
+  const history = getHistory();
+
+  if (history.length === 0) {
+    body.innerHTML = `
+      <div class="history-empty">
+        <div class="empty-icon">📭</div>
+        <p>还没有任何测试记录哦！<br>完成一次测试后，你的结果会自动保存在这里。<br>你可以多次测试，观察自己随时间的变化。</p>
+      </div>`;
+    return;
+  }
+
+  let html = `<h2 style="font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:1rem;">
+    📋 共 ${history.length} 条记录
+    ${history.length >= 2 ? `<span style="font-size:0.85rem;font-weight:400;color:var(--text2);">（可选择多条进行对比）</span>` : ''}
+  </h2>`;
+
+  html += '<div class="history-list">';
+  // 最新的排在前面
+  [...history].reverse().forEach((r, idx) => {
+    const recIdx = history.length - 1 - idx;
+    html += `
+      <div class="history-item" onclick="viewRecordDetail(${recIdx})" style="position:relative;">
+        <div class="hi-top">
+          <span class="hi-title">📝 第 ${history.length - idx} 次测试</span>
+          <span class="hi-date">${r.date}</span>
+        </div>
+        <div class="hi-scores-mini">
+          ${DIM_LABELS.map((d,i) =>
+            `<span class="hi-score-chip">${d.slice(0,2)} <strong>${r.scores[i]}</strong></span>`
+          ).join('')}
+          <span class="hi-score-chip" style="background:#F5F3FF;color:var(--primary-dark);">均分 <strong>${r.avgScore}</strong></span>
+        </div>
+        <button onclick="event.stopPropagation();deleteHistoryRecord(${r.id})"
+                style="position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text2);padding:0.3rem;"
+                title="删除此记录">🗑️</button>
+      </div>`;
+  });
+  html += '</div>';
+
+  // 多次记录才显示对比入口
+  if (history.length >= 2) {
+    html += `
+      <div style="margin-top:1.5rem;text-align:center;">
+        <button class="btn-start" onclick="showCompare()" style="font-size:1rem;padding:1rem 3.5rem;">
+          📈 查看成长对比分析
+        </button>
+        <p style="color:var(--text2);font-size:0.85rem;margin-top:0.8rem;">
+          对比所有 ${history.length} 次测试结果，发现你的变化趋势
+        </p>
+      </div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+// ===================================================
+// 查看单条记录详情（复用雷达图）
+// ===================================================
+let currentViewingRecord = null;
+
+function viewRecordDetail(idx) {
+  const history = getHistory();
+  if (idx < 0 || idx >= history.length) return;
+  currentViewingRecord = history[idx];
+
+  hideAllScreens();
+  document.getElementById('result-screen').style.display = 'block';
+
+  // 更新标题显示这是历史记录
+  document.querySelector('.result-header h1').textContent = `📊 第 ${idx+1} 次测试结果`;
+  document.querySelector('.result-header p').textContent = `${currentViewingRecord.date} · 综合得分 ${currentViewingRecord.avgScore}`;
+
+  // 清除旧的图表实例并重绘
+  const canvas = document.getElementById('radarChart');
+  const oldChart = Chart.getChart(canvas);
+  if (oldChart) oldChart.destroy();
+
+  const ctx = canvas.getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: DIM_LABELS,
+      datasets: [{
+        label: currentViewingRecord.date,
+        data: currentViewingRecord.scores,
+        backgroundColor: 'rgba(99,102,241,0.2)',
+        borderColor: '#6366F1',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#6366F1',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min:0, max:100,
+          ticks:{stepSize:25, font:{size:11}},
+          grid:{color:'#E2E8F0'},
+          angleLines:{color:'#E2E8F0'},
+          pointLabels:{font:{size:12,weight:'bold'},color:'#334155'}
+        }
+      },
+      plugins: { legend: { display:false } }
+    }
+  });
+
+  // 模块得分卡片
+  const container = document.getElementById('result-modules');
+  container.innerHTML = '';
+  MODULES.forEach((mod, i) => {
+    const card = document.createElement('div');
+    card.className = 'result-module-card';
+    card.innerHTML = `
+      <div class="rm-header"><span class="rm-icon">${mod.icon}</span><span class="rm-title">${mod.name}</span></div>
+      <div class="rm-score-bar-wrap"><div class="rm-score-bar" id="bar-${i}" style="width:${currentViewingRecord.scores[i]}%"></div></div>
+      <div class="rm-score-text"><span>${currentViewingRecord.scores[i]}分</span><span>满分100</span></div>
+      <p class="rm-desc">${getModuleDesc(i, currentViewingRecord.scores[i])}</p>`;
+    container.appendChild(card);
+  });
+
+  // 标签和综合文字
+  document.getElementById('summary-tags').innerHTML =
+    (currentViewingRecord.tags||[]).map(t => `<span class="tag">${t}</span>`).join('');
+  document.getElementById('summary-text').textContent = generateSummaryText(currentViewingRecord.scores);
+
+  // 更新按钮区
+  const btnsDiv = document.querySelector('.result-btns') || document.createElement('div');
+  if (!document.querySelector('.result-btns')) {
+    btnsDiv.className = 'result-btns';
+    btnsDiv.innerHTML = `
+      <button class="btn-restart" onclick="restartQuiz()">🔄 重新测试</button>
+      <button class="btn-history-result" onclick="showHistory()">📊 返回历史记录</button>`;
+    document.querySelector('.btn-restart').parentElement.replaceWith(btnsDiv);
+  }
+
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ===================================================
+// 成长对比分析
+// ===================================================
+function showCompare() {
+  hideAllScreens();
+  document.getElementById('compare-screen').style.display = 'block';
+  renderCompareAnalysis();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderCompareAnalysis() {
+  const history = getHistory();
+  const body = document.getElementById('compare-body');
+
+  if (history.length < 2) {
+    body.innerHTML = `
+      <div class="history-empty">
+        <p>至少需要 2 条测试记录才能进行对比分析。请再完成一次测试后回来查看。</p>
+      </div>`;
+    return;
+  }
+
+  const first = history[0];
+  const last = history[history.length - 1];
+  const daysPassed = Math.round((last.timestamp - first.timestamp) / (1000*60*60*24));
+
+  // 更新副标题
+  document.getElementById('compare-subtitle').textContent =
+    `从 ${first.date} 到 ${last.date} · 跨度 ${daysPassed} 天 · 共 ${history.length} 次测试`;
+
+  // === 1. 总体成长指标 ===
+  const overallChange = last.avgScore - first.avgScore;
+  let html = '';
+
+  html += `
+    <div class="compare-card">
+      <h2>🎯 总体成长概览</h2>
+      <div class="growth-highlight">
+        <div class="gh-item">
+          <div class="gh-icon">📅</div>
+          <div class="gh-label">时间跨度</div>
+          <div class="gh-value">${daysPassed} 天</div>
+          <div class="gh-change">${history.length > 2 ? `共${history.length}次测试` : '2次对比'}</div>
+        </div>
+        <div class="gh-item">
+          <div class="gh-icon">📊</div>
+          <div class="gh-label">综合得分变化</div>
+          <div class="gh-value ${overallChange>=0?'up':'down'}">${overallChange>=0?'+':''}${overallChange}</div>
+          <div class="gh-change">${first.avgScore} → ${last.avgScore}</div>
+        </div>
+        <div class="gh-item">
+          <div class="gh-icon">🏆</div>
+          <div class="gh-label">最高维度提升</div>
+          <div class="gh-value up" id="max-gain-val">-</div>
+          <div class="gh-change" id="max-gain-label">计算中...</div>
+        </div>
+        <div class="gh-item">
+          <div class="gh-icon">⚠️</div>
+          <div class="gh-label">需要关注</div>
+          <div class="gh-value down" id="max-loss-val">-</div>
+          <div class="gh-change" id="max-loss-label">计算中...</div>
+        </div>
+      </div>
+    </div>`;
+
+  // === 2. 各维度对比条形图 ===
+  html += `
+    <div class="compare-card">
+      <h2>📊 各维度首次 vs 最新 对比</h2>
+      <div class="dim-compare-grid" id="dim-compare-grid"></div>
+    </div>`;
+
+  // === 3. 多期折线趋势图 ===
+  html += `
+    <div class="compare-card">
+      <h2>📈 七维度成长趋势图</h2>
+      <div class="chart-container-large">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>`;
+
+  // === 4. 成长报告 ===
+  html += `
+    <div class="compare-card">
+      <h2>🧭 个人成长洞察报告</h2>
+      <div class="growth-report" id="growth-report"></div>
+    </div>`;
+
+  body.innerHTML = html;
+
+  // 计算各维度变化
+  const changes = first.scores.map((s, i) => last.scores[i] - s);
+
+  // 填充总体指标
+  const maxGainIdx = changes.indexOf(Math.max(...changes));
+  const maxLossIdx = changes.indexOf(Math.min(...changes));
+  document.getElementById('max-gain-val').textContent = `+${Math.max(...changes)}`;
+  document.getElementById('max-gain-label').textContent = DIM_LABELS[maxGainIdx];
+  if (Math.min(...changes) < 0) {
+    document.getElementById('max-loss-val').textContent = Math.min(...changes);
+    document.getElementById('max-loss-label').textContent = DIM_LABELS[maxLossIdx];
+  } else {
+    document.getElementById('max-loss-val').textContent = '+0';
+    document.getElementById('max-loss-label').textContent = '全部正向发展 🎉';
+  }
+
+  // 渲染各维度对比条
+  const grid = document.getElementById('dim-compare-grid');
+  grid.innerHTML = '';
+  DIM_LABELS.forEach((label, i) => {
+    const oldVal = first.scores[i];
+    const newVal = last.scores[i];
+    const change = newVal - oldVal;
+    const trendClass = change > 2 ? 'up' : change < -2 ? 'down' : 'same';
+    const trendText = change > 2 ? `↑ +${change}` : change < -2 ? `↓ ${change}` : `→ ${change>0?'+':''}${change}`;
+    grid.innerHTML += `
+      <div class="dim-compare-item">
+        <div class="dci-name">
+          <span>${MODULES[i].icon} ${label}</span>
+          <span class="dci-trend ${trendClass}">${trendText}</span>
+        </div>
+        <div class="dci-bars">
+          <div class="dci-bar-wrap">
+            <div class="dci-bar-bg" style="position:relative;height:14px;">
+              <div class="dci-bar-fill-old" style="width:${oldVal}%"></div>
+              <div class="dci-bar-fill-new" style="width:${newVal}%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="dci-labels"><span>首次: ${oldVal}</span><span>最新: ${newVal}</span></div>
+      </div>`;
+  });
+
+  // 渲染折线图
+  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  const lineLabels = history.map((r,i) => `第${i+1}次`);
+  const colors = [
+    '#6366F1','#8B5CF6','#A78BFA','#C4B5FD','#DDD6FE',
+    '#06B6D4','#22D3EE','#67E8F9','#A5F3FC','#CFFAFE',
+    '#10B981','#34D399','#6EE7B7','#A7F3D0','#D1FAE5'
+  ];
+  const datasets = DIM_LABELS.map((label, i) => ({
+    label: label,
+    data: history.map(r => r.scores[i]),
+    borderColor: colors[i % colors.length],
+    backgroundColor: (colors[i % colors.length] + '20').replace(/(.{6})20$/, 'rgba($1,0.12)'),
+    borderWidth: 2.5,
+    pointRadius: 4,
+    pointHoverRadius: 7,
+    fill: false,
+    tension: 0.35,
+  }));
+
+  new Chart(lineCtx, {
+    type: 'line',
+    data: { labels: lineLabels, datasets: datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { color: '#F1F5F9' }, ticks: { font: {size:11} } },
+        y: { min: 0, max: 100, ticks: { stepSize: 25, font: {size:11} }, grid: { color: '#E2E8F0' } }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { padding: 15, usePointStyle: true, pointStyle: 'circle', font: {size:11} }
+        }
+      }
+    }
+  });
+
+  // 生成成长报告文本
+  document.getElementById('growth-report').innerHTML = generateGrowthReport(first, last, changes, daysPassed, history.length);
+}
+
+function generateGrowthReport(first, last, changes, daysPassed, testCount) {
+  const avgChange = last.avgScore - first.avgScore;
+  const improvedDims = DIM_LABELS.filter((_, i) => changes[i] > 3);
+  const declinedDims = DIM_LABELS.filter((_, i) => changes[i] < -3);
+  const stableDims = DIM_LABELS.filter((_, i) => changes[i] >= -3 && changes[i] <= 3);
+
+  let report = '<h3>🌱 你的成长故事</h3><p>';
+  report += `在过去 <strong>${daysPassed} 天</strong>里，你完成了 <strong>${testCount} 次</strong>自我认知测试。`;
+  report += `综合得分从 <strong>${first.avgScore}</strong> 变化为 <strong>${last.avgScore}</strong>`;
+  report += `(变动 ${avgChange>=0?'+':''}${avgChange})，`;
+
+  if (avgChange >= 10) {
+    report += '这是一个非常显著的积极变化！你在这段时间里经历了明显的个人成长。🌟<br><br>';
+  } else if (avgChange >= 3) {
+    report += '呈现出稳中有升的态势，说明你在持续进步中。💪<br><br>';
+  } else if (avgChange >= -3) {
+    report += '整体保持稳定，这本身就是一种内在一致性的体现。🔍<br><br>';
+  } else {
+    report += '出现了一定幅度的下降，这可能意味着你正在经历一段反思或调整期。请继续往下看具体维度的分析。🤔<br><br>';
+  }
+
+  // 维度分析
+  if (improvedDims.length > 0) {
+    report += `<strong>✨ 显著提升的维度：</strong>${improvedDims.join('、')}。`;
+    report += `这些领域的成长可能源于你近期有意识地投入了精力、经历了相关的生活事件，或是自然成熟的结果。<br><br>`;
+  }
+
+  if (declinedDims.length > 0) {
+    report += `<strong>⚠️ 有所下降的维度：</strong>${declinedDims.join('、')}。`;
+    report += `分数下降并不一定代表退步——它可能反映你对自我要求的提高、对问题更诚实的态度，或是当前生活阶段的重心转移。建议关注这些领域是否需要额外的关注和支持。<br><br>`;
+  }
+
+  if (stableDims.length > 0) {
+    report += `<strong>🔄 保持稳定的维度：</strong>${stableDims.join('、')}。`;
+    report += `这些特质构成了你人格的「核心基底」，它们是你性格中最稳定、最持久的部分。<br><br>`;
+  }
+
+  // 最大变化的深度解读
+  const maxGainDim = DIM_LABELS[changes.indexOf(Math.max(...changes))];
+  const maxGainVal = Math.max(...changes);
+  report += `<strong>📈 变化最大的维度是「${maxGainDim}」</strong>（变化 +${maxGainVal}）。`;
+  const dimInsights = {
+    '人格特质': '人格特质的显著变化通常反映了重大的人生经历或持续的自我修炼。你可能在这段时间内变得更开放、更尽责、更善于社交，或者情绪更加稳定。',
+    '认知风格': '思维方式的改变说明你在不断优化自己的决策模式，可能是学习新技能、接触新思维方式的结果。',
+    '情绪智力': '情绪智力的提升是一笔宝贵的财富——它意味着你更了解自己的情绪，也能更好地与他人共情和联结。',
+    '核心价值观': '价值观的变化往往标志着人生阶段的转变。你对自己真正重视的东西有了更清晰或不同的认识。',
+    '内在动机': '动机模式的变化表明你正在从外部驱动向内部驱动转变，或者发现了新的热情所在。',
+    '人际关系': '关系模式的改善说明你在建立更健康的边界、更安全的依恋或更好的冲突处理能力。',
+    '压力应对': '压力管理能力的增强是你心理韧性提升的直接证据，这意味着你能更好地面对生活中的挑战。'
+  };
+  report += dimInsights[maxGainDim] || '';
+  report += '<br><br>';
+
+  // 建议
+  report += '<strong>💡 下一步行动建议：</strong><ul style="padding-left:1.5rem;margin-top:0.5rem;">';
+  if (improvedDims.length > 0) {
+    report += `<li>继续保持让你在${improvedDims[0]}上成长的那些习惯和实践</li>`;
+  }
+  if (declinedDims.length > 0) {
+    report += `<li>思考一下${declinedDims[0]}下降的原因：是环境改变？还是需要更多的关注？</li>`;
+  }
+  if (testCount < 5 && daysPassed < 90) {
+    report += '<li>建议每隔 1-2 个月做一次测试，积累更多数据点来观察长期趋势</li>';
+  }
+  report += '<li>记住：这份报告的意义在于帮助你更好地认识自己，而非给自己贴标签或下判断</li>';
+  report += '</ul></p>';
+
+  return report;
+}
+
+// 初始化
+loadProgress();
+if (Object.keys(answers).length > 0 && currentQ > 0) {
+  // 有未完成进度，提示继续
+  document.querySelector('.btn-start').textContent = `继续上次 (已完成 ${currentQ}/${QUESTIONS.length} 题)`;
+}
+// 如果有历史记录，在欢迎页增加提示
+const histCount = getHistory().length;
+if (histCount > 0) {
+  const note = document.querySelector('.time-note');
+  if (note) {
+    note.innerHTML += `<br>📊 已有 <strong>${histCount}</strong> 条历史测试记录 → 点击「历史记录与对比分析」查看`;
+  }
+}
+</script>
+</body>
+</html>
